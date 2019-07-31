@@ -1,12 +1,12 @@
 package ffam.task.data;
 
-import ffam.general.Sql;
 import ffam.task.domain.Task;
 import ffam.task.domain.TaskPriority;
 import ffam.task.domain.TaskStatus;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -14,26 +14,18 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
 
-import static ffam.general.StatementAttribute.Type.API;
-import static ffam.general.StatementAttribute.Type.DATA;
-import static ffam.general.StatementAttribute.attribute;
-import static ffam.general.StatementInfo.withAttributes;
-
 @Slf4j
 @Repository
 public class TaskRepository {
-    private final Sql sql;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public TaskRepository(Sql sql) {
-        this.sql = sql;
+    public TaskRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public Optional<Task> findByTaskId(String taskId) {
-        val results = sql.query(
-                withAttributes(attribute(API, "TaskRepository.findByTaskId"),
-                        attribute(DATA, taskId)
-                ),
+        val results = jdbcTemplate.query(
                 "SELECT TASK_ID, PRIORITY, SKILL_1, SKILL_2, SKILL_3, STATUS, AGENT_ID " +
                         "FROM TASK " +
                         "WHERE TASK_ID = ? ",
@@ -45,10 +37,7 @@ public class TaskRepository {
 
     public List<Task> findByAgentIdAndStatus(String agentId,
                                              TaskStatus taskStatus) {
-        List<Task> results = sql.query(
-                withAttributes(attribute(API, "TaskRepository.findByAgentIdAndStatus"),
-                        attribute(DATA, agentId)
-                ),
+        List<Task> results = jdbcTemplate.query(
                 "SELECT TASK_ID, PRIORITY, SKILL_1, SKILL_2, SKILL_3, STATUS, AGENT_ID " +
                         "FROM TASK " +
                         "WHERE AGENT_ID = ? " +
@@ -66,12 +55,7 @@ public class TaskRepository {
                           boolean skill1,
                           boolean skill2,
                           boolean skill3) {
-        int count = sql.update(
-                withAttributes(
-                        attribute(API, "TaskRepository.createOrUpdate"),
-                        attribute(DATA, agentId),
-                        attribute(DATA, taskId)
-                ),
+        int count = jdbcTemplate.update(
                 "INSERT INTO TASK(TASK_ID, PRIORITY, SKILL_1, SKILL_2, SKILL_3, STATUS, AGENT_ID) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 new Object[]{
@@ -89,13 +73,8 @@ public class TaskRepository {
     }
 
     public boolean updateTaskStatus(String taskId,
-                                    TaskStatus taskStatus){
-        int count = sql.update(
-                withAttributes(
-                        attribute(API, "TaskRepository.updateTaskStatus"),
-                        attribute(DATA, taskId)
-                ),
-
+                                    TaskStatus taskStatus) {
+        int count = jdbcTemplate.update(
                 "UPDATE TASK " +
                         "SET STATUS = ? " +
                         "WHERE TASK_ID = ?",

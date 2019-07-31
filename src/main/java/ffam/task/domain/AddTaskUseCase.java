@@ -1,5 +1,6 @@
 package ffam.task.domain;
 
+import ffam.general.UuidGenerator;
 import ffam.task.api.TaskRequest;
 import ffam.task.api.TaskRequestBusinessErrorResponse;
 import ffam.task.api.TaskResponse;
@@ -16,15 +17,17 @@ import java.util.UUID;
 public class AddTaskUseCase {
     private final TaskRepository taskRepository;
     private final TaskAllocationDetailRepository taskAllocationDetailRepository;
+    private final UuidGenerator uuidGenerator;
 
     @Autowired
-    public AddTaskUseCase(TaskRepository taskRepository, TaskAllocationDetailRepository taskAllocationDetailRepository) {
+    public AddTaskUseCase(TaskRepository taskRepository, TaskAllocationDetailRepository taskAllocationDetailRepository, UuidGenerator uuidGenerator) {
         this.taskRepository = taskRepository;
         this.taskAllocationDetailRepository = taskAllocationDetailRepository;
+        this.uuidGenerator = uuidGenerator;
     }
 
     public ResponseEntity<?> addTask(String agentId, TaskRequest taskRequest) {
-        val taskId = UUID.randomUUID().toString();
+        val taskId = uuidGenerator.randomUUID().toString();
         // Add a record to the task allocation table
         if (!taskAllocationDetailRepository.createOrUpdate(agentId,
                 taskId,

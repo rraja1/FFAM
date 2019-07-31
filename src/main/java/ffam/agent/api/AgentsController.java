@@ -71,7 +71,7 @@ public class AgentsController {
             //If Agent Id is Present
             //Send the List with Single Agent Details
             val taskAllocationDetailOptional = taskAllocationDetailRepository.findByAgentId(agentId);
-            if (taskAllocationDetailOptional.isEmpty()) {
+            if (!taskAllocationDetailOptional.isPresent()) {
                 return ResponseEntity.unprocessableEntity().body(new TaskRequestBusinessErrorResponse("V201", "No Tasks Available for this agent"));
             }
             if (taskAllocationDetailOptional.get().getTaskId() == null

@@ -64,7 +64,7 @@ public class TaskAllocationDetailRepository {
         //Check id the row exists per agent
         val taskAllocationDetailOptional = findByAgentId(agentId);
 
-        if (taskAllocationDetailOptional.isEmpty()) {
+        if (!taskAllocationDetailOptional.isPresent()) {
             int count = sql.update(
                     withAttributes(
                             attribute(API, "TaskAllocationDetailRepository.createOrUpdate"),
@@ -104,7 +104,7 @@ public class TaskAllocationDetailRepository {
                           String agentId) {
 
         val taskAllocationDetailOptional = findByAgentId(agentId);
-        if (taskAllocationDetailOptional.isEmpty()) {
+        if (!taskAllocationDetailOptional.isPresent()) {
             //Not Present
             return false;
         }

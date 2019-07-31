@@ -9,6 +9,7 @@ import ffam.task.domain.AddTaskUseCase;
 import ffam.task.domain.AddTaskWhenAgentBusyUseCase;
 import ffam.task.domain.TaskPriority;
 import ffam.task.domain.TaskStatus;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class TaskControllerUseCase {
     private final TaskAllocationDetailRepository taskAllocationDetailRepository;
 
     @Autowired
-    public TaskControllerUseCase(AgentRepository agentRepository, TaskRepository taskRepository, TaskAllocationDetailRepository taskAllocationDetailRepository, ObjectIdGenerators.UUIDGenerator uuidGenerator, AddTaskUseCase addTaskUseCase, AddTaskWhenAgentBusyUseCase addTaskWhenAgentBusyUseCase) {
+    public TaskControllerUseCase(AgentRepository agentRepository, TaskRepository taskRepository, TaskAllocationDetailRepository taskAllocationDetailRepository, AddTaskUseCase addTaskUseCase, AddTaskWhenAgentBusyUseCase addTaskWhenAgentBusyUseCase) {
         this.agentRepository = agentRepository;
         this.taskRepository = taskRepository;
         this.taskAllocationDetailRepository = taskAllocationDetailRepository;
@@ -73,7 +74,7 @@ public class TaskControllerUseCase {
     public ResponseEntity<?> finishTask(String taskId) {
         val taskOptional = taskRepository.findByTaskId(taskId);
 
-        if (taskOptional.isEmpty()) {
+        if (!taskOptional.isPresent()) {
             return ResponseEntity.unprocessableEntity().body(new TaskRequestBusinessErrorResponse("V102", "No such task present"));
         }
 

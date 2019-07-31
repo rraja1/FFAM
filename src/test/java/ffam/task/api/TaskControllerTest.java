@@ -63,7 +63,31 @@ public class TaskControllerTest {
     //endregion
 
     //region finishTask
+    @Test
+    public void testFinishTaskWhenRequestInvalid(){
+        val taskResponse = subject.finishTask(null);
+        assertEquals(400, taskResponse.getStatusCode().value());
+        assertEquals(new TaskRequestValidationErrorResponse("V103", "Given Request is Invalid"), (TaskRequestValidationErrorResponse)taskResponse.getBody());
 
+        val taskResponse1 = subject.finishTask("");
+        assertEquals(400, taskResponse.getStatusCode().value());
+        assertEquals(new TaskRequestValidationErrorResponse("V103", "Given Request is Invalid"), (TaskRequestValidationErrorResponse)taskResponse1.getBody());
+
+        verifyZeroInteractions(taskRequestValidator);
+        verifyZeroInteractions(taskControllerUseCase);
+    }
+
+    @Test
+    public void testFinishTaskWhenRequestValidReturnsControllerUseCaseResponse(){
+        when(taskControllerUseCase.finishTask("taskId")).thenReturn(ResponseEntity.ok().build());
+        val taskResponse = subject.finishTask("taskId");
+        assertEquals(200, taskResponse.getStatusCode().value());
+
+        verify(taskControllerUseCase, times(1)).finishTask("taskId");
+        verifyNoMoreInteractions(taskControllerUseCase);
+
+        verifyZeroInteractions(taskRequestValidator);
+    }
     //endregion
 
 }

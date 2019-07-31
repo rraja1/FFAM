@@ -1,0 +1,54 @@
+databaseChangeLog:
+- changeSet:
+    id: 2
+    author: raghav
+    objectQuotingStrategy: QUOTE_ALL_OBJECTS
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: TASK_ID
+            remarks: 'Unique Identifier. Primary key for the table.'
+            type: VARCHAR2(100 BYTE)
+        - column:
+            name: PRIORITY
+            remarks: 'Is the task Priority Low or High. 0 - Low and 1 - High'
+            type: NUMBER(1)
+        - column:
+            name: SKILL_1
+            remarks: 'Is Skill 1 Required for the Task. O - False and 1 - True'
+            type: NUMBER(1)
+        - column:
+            name: SKILL_2
+            remarks: 'Is Skill 2 Required for the Task. O - False and 1 - True'
+            type: NUMBER(1)
+        - column:
+            name: SKILL_3
+            remarks: 'Is Skill 3 Required for the Task. O - False and 1 - True'
+            type: NUMBER(1)
+        - column:
+            name: STATUS
+            remarks: 'Current Status of the task. IN_PROGRESS, PENDING, COMPLETE'
+            type: VARCHAR2(15 BYTE)
+        - column:
+            name: AGENT_ID
+            remarks: 'Agent Id of the Agent assigned to this task'
+            type: VARCHAR2(100 BYTE)
+        tableName: TASK
+    - addPrimaryKey:
+        columnNames: TASK_ID
+        constraintName: PK_TASK_ID
+        tableName: TASK
+    - changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: AGENT_ID
+          baseTableName: TASK
+          constraintName: FK_AGENT_ID
+          deferrable: true
+          initiallyDeferred: true
+          onDelete: CASCADE
+          onUpdate: RESTRICT
+          referencedColumnNames: AGENT_ID
+          referencedTableName: AGENT_LOOKUP

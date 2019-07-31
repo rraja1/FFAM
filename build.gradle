@@ -1,0 +1,64 @@
+group 'com.ffam'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext {
+        spring_plugin_version = '2.0.5.RELEASE'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$spring_plugin_version")
+    }
+}
+
+apply plugin : 'java'
+apply plugin : 'org.springframework.boot'
+apply plugin : 'io.spring.dependency-management'
+apply plugin : 'idea'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-data-rest')
+    compile('com.fasterxml.jackson.core:jackson-databind:2.8.5')
+    compile('com.fasterxml.jackson.core:jackson-core:2.8.5')
+    compile('com.fasterxml.jackson.core:jackson-annotations:2.8.5')
+    compile('com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.5')
+
+    compile files('libs/ojdbc7.jar')
+
+    compile('org.liquibase:liquibase-core:3.5.1')
+    compile('org.springframework:spring-jdbc')
+    compile('org.apache.tomcat:tomcat-jdbc:8.5.4')
+    compile('org.apache.commons:commons-io:1.3.2')
+    compile('io.springfox:springfox-swagger2:2.6.1')
+    compile('io.springfox:springfox-swagger-ui:2.6.1')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-devtools')
+    compile('org.springframework.boot:spring-boot-starter-aop')
+    compile('org.apache.commons:commons-lang3:3.5')
+    compile('org.apache.httpcomponents:httpclient:4.5.1')
+    compile('net.sourceforge.nekohtml:nekohtml:1.9.21')
+
+    compile('org.projectlombok:lombok:1.18.8')
+    testCompile("org.powermock:powermock-module-junit4:1.6.6")
+    testCompile("org.powermock:powermock-module-junit4-rule:1.6.6")
+    testCompile("org.powermock:powermock-api-mockito:1.6.6")
+    testCompile("org.powermock:powermock-classloading-xstream:1.6.6")
+    testCompile("junit:junit:4.12")}
+
+bootRun {
+    main = "ffam.Application"
+    environment 'DB_URL', System.getenv('DB_URL')
+}
+
+

@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  # Services
+  ffam:
+    depends_on:
+    - oracle.yaml
+    environment:
+      SERVER_PORT: 8080
+      DB_URL: jdbc:oracle.yaml:thin:sys/oracle@oracle.yaml:1521:xe
+    ports:
+    - "8080:8080"

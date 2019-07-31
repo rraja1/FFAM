@@ -1,0 +1,9 @@
+.project
+.classpath
+!.idea/
+.idea/*
+.idea/codeStyleSettings.xml
+build/
+.gradle/
+classes/
+out/

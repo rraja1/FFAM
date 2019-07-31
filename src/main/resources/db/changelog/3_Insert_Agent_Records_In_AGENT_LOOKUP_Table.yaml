@@ -1,0 +1,27 @@
+databaseChangeLog:
+- changeSet:
+    id: 3
+    author: raghav
+    objectQuotingStrategy: QUOTE_ALL_OBJECTS
+    changes:
+    - sql:
+      sql:
+        INSERT INTO AGENT_LOOKUP (AGENT_ID, AGENT_NAME, SKILL_1, SKILL_2, SKILL_3) values ('55fe8434-bc14-462e-9e4f-31a564b7721f','CaptainMarvel', '1', '1', '1');
+    - sql:
+      sql:
+        INSERT INTO AGENT_LOOKUP (AGENT_ID, AGENT_NAME, SKILL_1, SKILL_2, SKILL_3) values ('3eeb0486-f62f-4203-a40e-c6ee6daa9726','Thor', '1', '1', '0');
+    - sql:
+      sql:
+        INSERT INTO AGENT_LOOKUP (AGENT_ID, AGENT_NAME, SKILL_1, SKILL_2, SKILL_3) values ('994509fc-38ef-48c9-a287-a352c861f07e','IronMan', '1', '0', '1');
+    - sql:
+      sql:
+        INSERT INTO AGENT_LOOKUP (AGENT_ID, AGENT_NAME, SKILL_1, SKILL_2, SKILL_3) values ('70e28f98-4116-41eb-9854-b03377d3c570','Hulk', '0', '1', '1');
+    - sql:
+      sql:
+        INSERT INTO AGENT_LOOKUP (AGENT_ID, AGENT_NAME, SKILL_1, SKILL_2, SKILL_3) values ('3fee88da-809a-4a4a-8832-53757dd0e253','DrStrange', '1', '0', '0');
+    - sql:
+      sql:
+        INSERT INTO AGENT_LOOKUP (AGENT_ID, AGENT_NAME, SKILL_1, SKILL_2, SKILL_3) values ('5178d1a3-99ff-4304-bb6c-8a324c2ecb78','SpiderMan', '0', '1', '0');
+    - sql:
+      sql:
+        INSERT INTO AGENT_LOOKUP (AGENT_ID, AGENT_NAME, SKILL_1, SKILL_2, SKILL_3) values ('1984c5aa-6014-4a31-b31d-f7f2b409fec9','Vision', '0', '0', '1');

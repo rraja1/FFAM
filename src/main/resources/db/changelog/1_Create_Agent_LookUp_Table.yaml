@@ -1,0 +1,35 @@
+databaseChangeLog:
+- changeSet:
+    id: 1
+    author: raghav
+    objectQuotingStrategy: QUOTE_ALL_OBJECTS
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: AGENT_ID
+            remarks: 'Unique Identifier. Primary key for the table.'
+            type: VARCHAR2(100 BYTE)
+        - column:
+            name: AGENT_NAME
+            remarks: 'Name of the Agent'
+            type: VARCHAR2(100 BYTE)
+        - column:
+            name: SKILL_1
+            remarks: 'Does Agent possess Skill 1. O - False and 1 - True. Might be Okay if the Skill Set is Finite but if its more, might have to have a singular column with multiple bits.'
+            type: NUMBER(1)
+        - column:
+            name: SKILL_2
+            remarks: 'Does Agent possess Skill 2. O - False and 1 - True. Might be Okay if the Skill Set is Finite but if its more, might have to have a singular column with multiple bits.'
+            type: NUMBER(1)
+        - column:
+            name: SKILL_3
+            remarks: 'Does Agent possess Skill 3. O - False and 1 - True. Might be Okay if the Skill Set is Finite but if its more, might have to have a singular column with multiple bits.'
+            type: NUMBER(1)
+        tableName: AGENT_LOOKUP
+    - addPrimaryKey:
+        columnNames: AGENT_ID
+        constraintName: PK_AGENT_ID
+        tableName: AGENT_LOOKUP

@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/1_Create_Agent_LookUp_Table.yaml
+  - include:
+      file: db/changelog/2_Create_Task_Table.yaml
+  - include:
+      file: db/changelog/3_Insert_Agent_Records_In_AGENT_LOOKUP_Table.yaml
+  - include:
+      file: db/changelog/4_Create_Task_Allocation_Table.yaml

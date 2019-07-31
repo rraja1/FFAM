@@ -1,0 +1,30 @@
+databaseChangeLog:
+- changeSet:
+    id: 4
+    author: raghav
+    objectQuotingStrategy: QUOTE_ALL_OBJECTS
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: AGENT_ID
+            remarks: 'Agent Identifier'
+            type: VARCHAR2(100 BYTE)
+        - column:
+            name: TASK_ID
+            remarks: 'Comma Delimited Task Identifier List'
+            type: VARCHAR2(1000 BYTE)
+        - column:
+            name: TASK_PRIORITY
+            remarks: 'Task Priority High Or Low. O - Low and 1 - High.'
+            type: NUMBER(1)
+        - column:
+            name: DATE_CREATED
+            type: TIMESTAMP(6) WITH TIME ZONE
+            defaultValueComputed: SYSTIMESTAMP
+            remarks: 'Record created timestamp.'
+            constraints:
+              nullable: false
+        tableName: TASK_ALLOCATION

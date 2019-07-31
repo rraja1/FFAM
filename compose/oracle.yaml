@@ -1,0 +1,6 @@
+version: '2'
+
+services:
+  oracle:
+    ports:
+    - "1521:1521"

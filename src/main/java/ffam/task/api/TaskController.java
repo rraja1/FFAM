@@ -46,8 +46,7 @@ public class TaskController {
     })
     @RequestMapping(
             method = RequestMethod.POST,
-            value = "/task",
-            produces = MediaType.APPLICATION_JSON_VALUE)
+            value = "/task")
     public ResponseEntity<?> addTask(@RequestBody TaskRequest taskRequest) {
 
         val validationErrorOptional = taskRequestValidator.isValid(taskRequest);

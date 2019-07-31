@@ -76,7 +76,7 @@ public class TaskRepository {
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 new Object[]{
                         taskId,
-                        taskPriority.name(),
+                        taskPriority == TaskPriority.HIGH ? 1 : 0,
                         skill1,
                         skill2,
                         skill3,
@@ -97,7 +97,7 @@ public class TaskRepository {
                 ),
 
                 "UPDATE TASK " +
-                        "SET STATUS = ?, " +
+                        "SET STATUS = ? " +
                         "WHERE TASK_ID = ?",
 
                 new Object[]{taskStatus.name(), taskId});
@@ -109,7 +109,7 @@ public class TaskRepository {
     private final RowMapper<Task> taskRowMapper =
             (ResultSet rs, int rowNum) -> {
                 String taskId = rs.getString("TASK_ID");
-                TaskPriority taskPriority = Enum.valueOf(TaskPriority.class, rs.getString("PRIORITY"));
+                TaskPriority taskPriority = rs.getInt("PRIORITY") == 1 ? TaskPriority.HIGH : TaskPriority.LOW;
                 TaskStatus taskStatus = Enum.valueOf(TaskStatus.class, rs.getString("STATUS"));
                 boolean skill1 = rs.getBoolean("SKILL_1");
                 boolean skill2 = rs.getBoolean("SKILL_2");

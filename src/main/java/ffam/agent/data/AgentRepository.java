@@ -32,7 +32,7 @@ public class AgentRepository {
                         attribute(DATA, skill3)
                 ),
                 buildSql(skill1, skill2, skill3),
-                new Object[]{skill1, skill2, skill3},
+                new Object[]{},
                 agentRowMapper);
 
         return results;
@@ -62,19 +62,19 @@ public class AgentRepository {
                 "WHERE ");
 
         if (skill1) {
-            stringBuilder.append(" SKILL_1 = ? ");
+            stringBuilder.append(" SKILL_1 = 1 ");
         }
         if (skill2) {
-            if (stringBuilder.toString().endsWith("? ")) {
+            if (stringBuilder.toString().endsWith("1 ")) {
                 stringBuilder.append(" AND ");
             }
-            stringBuilder.append(" SKILL_2 = ? ");
+            stringBuilder.append(" SKILL_2 = 1 ");
         }
         if (skill3) {
-            if (stringBuilder.toString().endsWith("? ")) {
+            if (stringBuilder.toString().endsWith("1 ")) {
                 stringBuilder.append(" AND ");
             }
-            stringBuilder.append(" SKILL_3 = ? ");
+            stringBuilder.append(" SKILL_3 = 1 ");
         }
         return stringBuilder.toString();
     }

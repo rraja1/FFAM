@@ -1,15 +1,10 @@
 package ffam.task.api;
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import ffam.agent.data.Agent;
 import ffam.agent.data.AgentRepository;
 import ffam.task.data.TaskAllocationDetailRepository;
 import ffam.task.data.TaskRepository;
-import ffam.task.domain.AddTaskUseCase;
-import ffam.task.domain.AddTaskWhenAgentBusyUseCase;
-import ffam.task.domain.TaskPriority;
-import ffam.task.domain.TaskStatus;
-import lombok.experimental.NonFinal;
+import ffam.task.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +21,15 @@ public class TaskControllerUseCase {
     private final AddTaskWhenAgentBusyUseCase addTaskWhenAgentBusyUseCase;
     private final AgentRepository agentRepository;
     private final TaskRepository taskRepository;
-    private final TaskAllocationDetailRepository taskAllocationDetailRepository;
+    private final TaskAllocationDetailUseCase taskAllocationDetailUseCase;
 
     @Autowired
-    public TaskControllerUseCase(AgentRepository agentRepository, TaskRepository taskRepository, TaskAllocationDetailRepository taskAllocationDetailRepository, AddTaskUseCase addTaskUseCase, AddTaskWhenAgentBusyUseCase addTaskWhenAgentBusyUseCase) {
+    public TaskControllerUseCase(AgentRepository agentRepository, TaskRepository taskRepository, AddTaskUseCase addTaskUseCase, AddTaskWhenAgentBusyUseCase addTaskWhenAgentBusyUseCase, TaskAllocationDetailUseCase taskAllocationDetailUseCase) {
         this.agentRepository = agentRepository;
         this.taskRepository = taskRepository;
-        this.taskAllocationDetailRepository = taskAllocationDetailRepository;
         this.addTaskUseCase = addTaskUseCase;
         this.addTaskWhenAgentBusyUseCase = addTaskWhenAgentBusyUseCase;
+        this.taskAllocationDetailUseCase = taskAllocationDetailUseCase;
     }
 
     // An agent cannot be assigned a task if they’re already working on a task of equal or higher priority.
@@ -79,10 +74,11 @@ public class TaskControllerUseCase {
         }
 
         // Update Task Allocation Table
-        if (!taskAllocationDetailRepository.delete(taskId,
-                taskOptional.get().getAgentId())) {
+        if (!taskAllocationDetailUseCase.deleteTask(taskOptional.get().getAgentId(),
+                taskId, taskOptional.get().getTaskPriority())) {
             return ResponseEntity.unprocessableEntity().body(new TaskRequestBusinessErrorResponse("V101", "Unable to delete the task at this time"));
         }
+
         // Mark the Status of the Task as Complete on the task table
         if (!taskRepository.updateTaskStatus(taskId, TaskStatus.COMPLETE)) {
             return ResponseEntity.unprocessableEntity().body(new TaskRequestBusinessErrorResponse("V101", "Unable to delete the task at this time"));

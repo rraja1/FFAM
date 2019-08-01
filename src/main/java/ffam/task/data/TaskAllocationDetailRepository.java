@@ -4,7 +4,6 @@ import ffam.general.ZonedDateTimeProvider;
 import ffam.task.domain.TaskAllocationDetail;
 import ffam.task.domain.TaskPriority;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -52,79 +51,42 @@ public class TaskAllocationDetailRepository {
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
-    public boolean createOrUpdate(String agentId,
-                                  String taskId,
-                                  TaskPriority taskPriority) {
-        //Check id the row exists per agent
-        val taskAllocationDetailOptional = findByAgentId(agentId);
+    public boolean create(String agentId,
+                          String taskId,
+                          TaskPriority taskPriority) {
+        int count = jdbcTemplate.update(
+                "INSERT INTO TASK_ALLOCATION (TASK_ID, AGENT_ID, TASK_PRIORITY) VALUES (?, ?, ?)",
+                new Object[]{taskId, agentId, taskPriority == TaskPriority.HIGH ? 1 : 0}
+        );
 
-        if (!taskAllocationDetailOptional.isPresent()) {
-            int count = jdbcTemplate.update(
-                    "INSERT INTO TASK_ALLOCATION (TASK_ID, AGENT_ID, TASK_PRIORITY) VALUES (?, ?, ?)",
-                    new Object[]{taskId, agentId, taskPriority == TaskPriority.HIGH ? 1 : 0}
-            );
-
-            return count > 0;
-        } else {
-            List<String> taskIdList = taskAllocationDetailOptional.get().getTaskId();
-            taskIdList.add(taskId);
-
-            int count = jdbcTemplate.update(
-                    "UPDATE TASK_ALLOCATION " +
-                            "SET TASK_ID = ? ," +
-                            "TASK_PRIORITY = ? , " +
-                            "DATE_CREATED = ?  " +
-                            "WHERE AGENT_ID = ? ",
-                    new Object[]{String.join(",", taskIdList),
-                            taskPriority == TaskPriority.HIGH ? 1 : 0, // If already present and updating, take newer state
-                            Date.from(zonedDateTimeProvider.now().toInstant()),
-                            agentId}
-            );
-
-            return count > 0;
-        }
+        return count > 0;
     }
 
-    public boolean delete(String taskId,
-                          String agentId) {
+    public boolean update(String agentId,
+                          TaskPriority taskPriority,
+                          List<String> taskIdList,
+                          Optional<ZonedDateTime> zonedDateTimeOptional) {
 
-        val taskAllocationDetailOptional = findByAgentId(agentId);
-        if (!taskAllocationDetailOptional.isPresent()) {
-            //Not Present
-            return false;
-        }
-        val taskAllocationDetail = taskAllocationDetailOptional.get();
-        if (taskAllocationDetail.getTaskId().contains(taskId)) {
-            //Update
-            List<String> taskIdList = taskAllocationDetailOptional.get().getTaskId();
-            taskIdList.remove(taskId);
+        int count = jdbcTemplate.update(
+                "UPDATE TASK_ALLOCATION " +
+                        "SET TASK_ID = ? ," +
+                        "TASK_PRIORITY = ? , " +
+                        "DATE_CREATED = ?  " +
+                        "WHERE AGENT_ID = ? ",
+                new Object[]{String.join(",", taskIdList),
+                        taskPriority == TaskPriority.HIGH ? 1 : 0, // If already present and updating, take newer state
+                        zonedDateTimeOptional.map(zonedDateTime -> Date.from(zonedDateTime.toInstant())).orElseGet(() -> Date.from(zonedDateTimeProvider.now().toInstant())),
+                        agentId});
 
-            if(taskIdList.isEmpty()){
-                // No more tasks left for the agent. Clean the record up
-                int count = jdbcTemplate.update(
-                        "DELETE FROM TASK_ALLOCATION WHERE TASK_ID = ? ",
-                        new Object[]{taskId}
-                );
-                return count > 0;
-            }else {
-                // More tasks left for the agent. Keep the record here.
-                int count = jdbcTemplate.update(
-                        "UPDATE TASK_ALLOCATION " +
-                                "SET TASK_ID = ? ," +
-                                "TASK_PRIORITY = ? , " +
-                                "DATE_CREATED = ? " +
-                                "WHERE AGENT_ID = ? ",
-                        new Object[]{String.join(",", taskIdList),
-                                taskAllocationDetail.getTaskPriority() == TaskPriority.HIGH ? 1 : 0, // If already present and updating, take newer state
-                                Date.from(zonedDateTimeProvider.now().toInstant()),
-                                agentId}
-                );
-                return count > 0;
-            }
-        }
+        return count > 0;
+    }
 
-        //Not A Task for this agent
-        return false;
+    public boolean delete(String agentId) {
+        int count = jdbcTemplate.update(
+                "DELETE FROM TASK_ALLOCATION WHERE AGENT_ID = ? ",
+                new Object[]{agentId}
+        );
+        return count > 0;
     }
 
     //region private

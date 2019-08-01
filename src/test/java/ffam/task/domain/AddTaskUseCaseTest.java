@@ -20,8 +20,8 @@ import static org.mockito.Mockito.*;
 @RunWith(JUnit4.class)
 public class AddTaskUseCaseTest {
     private TaskRepository taskRepository;
-    private TaskAllocationDetailRepository taskAllocationDetailRepository;
     private UuidGenerator uuidGenerator;
+    private TaskAllocationDetailUseCase taskAllocationDetailUseCase;
     private AddTaskUseCase subject;
 
     private UUID guid = UUID.randomUUID();
@@ -29,10 +29,10 @@ public class AddTaskUseCaseTest {
     @Before
     public void setUp() {
         taskRepository = mock(TaskRepository.class, RETURNS_SMART_NULLS);
-        taskAllocationDetailRepository = mock(TaskAllocationDetailRepository.class, RETURNS_SMART_NULLS);
+        taskAllocationDetailUseCase = mock(TaskAllocationDetailUseCase.class, RETURNS_SMART_NULLS);
         uuidGenerator = mock(UuidGenerator.class, RETURNS_SMART_NULLS);
         subject = new AddTaskUseCase(taskRepository,
-                taskAllocationDetailRepository, uuidGenerator);
+                 uuidGenerator, taskAllocationDetailUseCase);
         when(uuidGenerator.randomUUID()).thenReturn(guid);
     }
 
@@ -42,16 +42,16 @@ public class AddTaskUseCaseTest {
         val taskRequest = new TaskRequest(TaskPriority.HIGH, true, false, false);
         val agentId = "agentId";
 
-        when(taskAllocationDetailRepository.createOrUpdate(agentId,
+        when(taskAllocationDetailUseCase.createOrUpdate(agentId,
                 guid.toString(), taskRequest.getTaskPriority())).thenReturn(false);
 
         val taskResponse = subject.addTask(agentId, taskRequest);
         assertEquals(422, taskResponse.getStatusCode().value());
         assertEquals(new TaskRequestBusinessErrorResponse("V005", "Can't Create a Task At this time"), (TaskRequestBusinessErrorResponse)taskResponse.getBody());
 
-        verify(taskAllocationDetailRepository, times(1)).createOrUpdate(agentId,
+        verify(taskAllocationDetailUseCase, times(1)).createOrUpdate(agentId,
                 guid.toString(), taskRequest.getTaskPriority());
-        verifyNoMoreInteractions(taskAllocationDetailRepository);
+        verifyNoMoreInteractions(taskAllocationDetailUseCase);
 
         verify(uuidGenerator, times(1)).randomUUID();
         verifyNoMoreInteractions(uuidGenerator);
@@ -64,7 +64,7 @@ public class AddTaskUseCaseTest {
         val taskRequest = new TaskRequest(TaskPriority.HIGH, true, false, false);
         val agentId = "agentId";
 
-        when(taskAllocationDetailRepository.createOrUpdate(agentId,
+        when(taskAllocationDetailUseCase.createOrUpdate(agentId,
                 guid.toString(), taskRequest.getTaskPriority())).thenReturn(true);
         when(taskRepository.create(agentId, guid.toString(), taskRequest.getTaskPriority(),
                 TaskStatus.IN_PROGRESS, taskRequest.isSkill1(), taskRequest.isSkill2(), taskRequest.isSkill3())).thenReturn(false);
@@ -73,9 +73,9 @@ public class AddTaskUseCaseTest {
         assertEquals(422, taskResponse.getStatusCode().value());
         assertEquals(new TaskRequestBusinessErrorResponse("V005", "Can't Create a Task At this time"), (TaskRequestBusinessErrorResponse)taskResponse.getBody());
 
-        verify(taskAllocationDetailRepository, times(1)).createOrUpdate(agentId,
+        verify(taskAllocationDetailUseCase, times(1)).createOrUpdate(agentId,
                 guid.toString(), taskRequest.getTaskPriority());
-        verifyNoMoreInteractions(taskAllocationDetailRepository);
+        verifyNoMoreInteractions(taskAllocationDetailUseCase);
 
         verify(uuidGenerator, times(1)).randomUUID();
         verifyNoMoreInteractions(uuidGenerator);
@@ -90,7 +90,7 @@ public class AddTaskUseCaseTest {
         val taskRequest = new TaskRequest(TaskPriority.HIGH, true, false, false);
         val agentId = "agentId";
 
-        when(taskAllocationDetailRepository.createOrUpdate(agentId,
+        when(taskAllocationDetailUseCase.createOrUpdate(agentId,
                 guid.toString(), taskRequest.getTaskPriority())).thenReturn(true);
         when(taskRepository.create(agentId, guid.toString(), taskRequest.getTaskPriority(),
                 TaskStatus.IN_PROGRESS, taskRequest.isSkill1(), taskRequest.isSkill2(), taskRequest.isSkill3())).thenReturn(true);
@@ -99,9 +99,9 @@ public class AddTaskUseCaseTest {
         assertEquals(200, taskResponse.getStatusCode().value());
         assertEquals(new TaskResponse(guid.toString(), agentId, TaskStatus.IN_PROGRESS), (TaskResponse) taskResponse.getBody());
 
-        verify(taskAllocationDetailRepository, times(1)).createOrUpdate(agentId,
+        verify(taskAllocationDetailUseCase, times(1)).createOrUpdate(agentId,
                 guid.toString(), taskRequest.getTaskPriority());
-        verifyNoMoreInteractions(taskAllocationDetailRepository);
+        verifyNoMoreInteractions(taskAllocationDetailUseCase);
 
         verify(uuidGenerator, times(1)).randomUUID();
         verifyNoMoreInteractions(uuidGenerator);

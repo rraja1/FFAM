@@ -25,7 +25,7 @@ public class TaskControllerUseCaseTest {
     private AddTaskWhenAgentBusyUseCase addTaskWhenAgentBusyUseCase;
     private AgentRepository agentRepository;
     private TaskRepository taskRepository;
-    private TaskAllocationDetailRepository taskAllocationDetailRepository;
+    private TaskAllocationDetailUseCase taskAllocationDetailUseCase;
 
     private TaskControllerUseCase subject;
 
@@ -35,12 +35,12 @@ public class TaskControllerUseCaseTest {
         addTaskWhenAgentBusyUseCase = mock(AddTaskWhenAgentBusyUseCase.class, RETURNS_SMART_NULLS);
         agentRepository = mock(AgentRepository.class, RETURNS_SMART_NULLS);
         taskRepository = mock(TaskRepository.class, RETURNS_SMART_NULLS);
-        taskAllocationDetailRepository = mock(TaskAllocationDetailRepository.class, RETURNS_SMART_NULLS);
+        taskAllocationDetailUseCase = mock(TaskAllocationDetailUseCase.class, RETURNS_SMART_NULLS);
         subject = new TaskControllerUseCase(agentRepository,
                 taskRepository,
-                taskAllocationDetailRepository,
                 addTaskUseCase,
-                addTaskWhenAgentBusyUseCase);
+                addTaskWhenAgentBusyUseCase,
+                taskAllocationDetailUseCase);
     }
 
     //region createTask
@@ -57,7 +57,6 @@ public class TaskControllerUseCaseTest {
         verifyNoMoreInteractions(agentRepository);
 
         verifyZeroInteractions(taskRepository);
-        verifyZeroInteractions(taskAllocationDetailRepository);
         verifyZeroInteractions(addTaskUseCase);
         verifyZeroInteractions(addTaskWhenAgentBusyUseCase);
     }
@@ -83,7 +82,6 @@ public class TaskControllerUseCaseTest {
         verify(addTaskUseCase, times(1)).addTask("agentId", taskRequest);
         verifyNoMoreInteractions(addTaskUseCase);
 
-        verifyZeroInteractions(taskAllocationDetailRepository);
         verifyZeroInteractions(addTaskWhenAgentBusyUseCase);
     }
 
@@ -107,7 +105,6 @@ public class TaskControllerUseCaseTest {
         verifyNoMoreInteractions(taskRepository);
 
         verifyZeroInteractions(addTaskUseCase);
-        verifyZeroInteractions(taskAllocationDetailRepository);
         verifyZeroInteractions(addTaskWhenAgentBusyUseCase);
     }
 
@@ -134,7 +131,6 @@ public class TaskControllerUseCaseTest {
         verifyNoMoreInteractions(addTaskWhenAgentBusyUseCase);
 
         verifyZeroInteractions(addTaskUseCase);
-        verifyZeroInteractions(taskAllocationDetailRepository);
     }
     //endregion
 
@@ -150,7 +146,6 @@ public class TaskControllerUseCaseTest {
         verifyNoMoreInteractions(taskRepository);
 
         verifyZeroInteractions(agentRepository);
-        verifyZeroInteractions(taskAllocationDetailRepository);
         verifyZeroInteractions(addTaskUseCase);
         verifyZeroInteractions(addTaskWhenAgentBusyUseCase);
     }
@@ -159,7 +154,7 @@ public class TaskControllerUseCaseTest {
     public void test_finishTask_returnsUnProcessableEntity_whenTaskAllocationDetailDeleteFails(){
         val task = new Task("taskId", TaskPriority.HIGH, true, false, false, TaskStatus.IN_PROGRESS, "agentId");
         when(taskRepository.findByTaskId("taskId")).thenReturn(Optional.of(task));
-        when(taskAllocationDetailRepository.delete("taskId", task.getAgentId())).thenReturn(false);
+        when(taskAllocationDetailUseCase.deleteTask(task.getAgentId(),"taskId", task.getTaskPriority())).thenReturn(false);
 
         val taskResponse = subject.finishTask("taskId");
         assertEquals(422, taskResponse.getStatusCode().value());
@@ -167,8 +162,8 @@ public class TaskControllerUseCaseTest {
 
         verify(taskRepository, times(1)).findByTaskId("taskId");
         verifyNoMoreInteractions(taskRepository);
-        verify(taskAllocationDetailRepository, times(1)).delete(task.getTaskId(), task.getAgentId());
-        verifyNoMoreInteractions(taskAllocationDetailRepository);
+        verify(taskAllocationDetailUseCase, times(1)).deleteTask(task.getAgentId(),"taskId", task.getTaskPriority());
+        verifyNoMoreInteractions(taskAllocationDetailUseCase);
 
         verifyZeroInteractions(agentRepository);
         verifyZeroInteractions(addTaskUseCase);
@@ -179,7 +174,7 @@ public class TaskControllerUseCaseTest {
     public void test_finishTask_returnsUnProcessableEntity_whenTaskUpdateFails(){
         val task = new Task("taskId", TaskPriority.HIGH, true, false, false, TaskStatus.IN_PROGRESS, "agentId");
         when(taskRepository.findByTaskId("taskId")).thenReturn(Optional.of(task));
-        when(taskAllocationDetailRepository.delete("taskId", task.getAgentId())).thenReturn(true);
+        when(taskAllocationDetailUseCase.deleteTask(task.getAgentId(),"taskId", task.getTaskPriority())).thenReturn(true);
         when(taskRepository.updateTaskStatus("taskId", TaskStatus.COMPLETE)).thenReturn(false);
 
         val taskResponse = subject.finishTask("taskId");
@@ -189,8 +184,8 @@ public class TaskControllerUseCaseTest {
         verify(taskRepository, times(1)).findByTaskId("taskId");
         verify(taskRepository, times(1)).updateTaskStatus("taskId", TaskStatus.COMPLETE);
         verifyNoMoreInteractions(taskRepository);
-        verify(taskAllocationDetailRepository, times(1)).delete(task.getTaskId(), task.getAgentId());
-        verifyNoMoreInteractions(taskAllocationDetailRepository);
+        verify(taskAllocationDetailUseCase, times(1)).deleteTask(task.getAgentId(),"taskId", task.getTaskPriority());
+        verifyNoMoreInteractions(taskAllocationDetailUseCase);
 
         verifyZeroInteractions(agentRepository);
         verifyZeroInteractions(addTaskUseCase);
@@ -201,7 +196,7 @@ public class TaskControllerUseCaseTest {
     public void test_finishTask_returnsOk_whenTaskUpdateSuccessAndTaskAllocationDetailSuccess(){
         val task = new Task("taskId", TaskPriority.HIGH, true, false, false, TaskStatus.IN_PROGRESS, "agentId");
         when(taskRepository.findByTaskId("taskId")).thenReturn(Optional.of(task));
-        when(taskAllocationDetailRepository.delete("taskId", task.getAgentId())).thenReturn(true);
+        when(taskAllocationDetailUseCase.deleteTask(task.getAgentId(),"taskId", task.getTaskPriority())).thenReturn(true);
         when(taskRepository.updateTaskStatus("taskId", TaskStatus.COMPLETE)).thenReturn(true);
 
         val taskResponse = subject.finishTask("taskId");
@@ -211,8 +206,8 @@ public class TaskControllerUseCaseTest {
         verify(taskRepository, times(1)).findByTaskId("taskId");
         verify(taskRepository, times(1)).updateTaskStatus("taskId", TaskStatus.COMPLETE);
         verifyNoMoreInteractions(taskRepository);
-        verify(taskAllocationDetailRepository, times(1)).delete(task.getTaskId(), task.getAgentId());
-        verifyNoMoreInteractions(taskAllocationDetailRepository);
+        verify(taskAllocationDetailUseCase, times(1)).deleteTask(task.getAgentId(),"taskId", task.getTaskPriority());
+        verifyNoMoreInteractions(taskAllocationDetailUseCase);
 
         verifyZeroInteractions(agentRepository);
         verifyZeroInteractions(addTaskUseCase);

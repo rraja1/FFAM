@@ -56,9 +56,4 @@ dependencies {
     testCompile("org.mockito:mockito-core:2.23.4")
     testCompile("junit:junit:4.12")}
 
-bootRun {
-    main = "ffam.Application"
-    environment 'DB_URL', System.getenv('DB_URL')
-}
-
 

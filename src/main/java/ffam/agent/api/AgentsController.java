@@ -66,10 +66,10 @@ public class AgentsController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAgentList(
             @RequestParam(required = false) String agentId) {
-
         if (StringUtils.isNotEmpty(agentId)) {
             //If Agent Id is Present
             //Send the List with Single Agent Details
+            log.info("Processing GET /agent for [{}]", agentId);
             val taskAllocationDetailOptional = taskAllocationDetailRepository.findByAgentId(agentId);
             if (!taskAllocationDetailOptional.isPresent()) {
                 return ResponseEntity.unprocessableEntity().body(new TaskRequestBusinessErrorResponse("V201", "No Tasks Available for this agent"));
@@ -89,6 +89,7 @@ public class AgentsController {
 
         //If not Present
         //Send the List with all Agent Details
+        log.info("Processing GET /agent for all agents");
         val taskAllocationDetailList = taskAllocationDetailRepository.findAll();
         if (taskAllocationDetailList == null || taskAllocationDetailList.isEmpty()) {
             return ResponseEntity.unprocessableEntity().body(new TaskRequestBusinessErrorResponse("V202", "No Tasks Available for any agent"));

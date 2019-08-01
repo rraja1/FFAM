@@ -1,5 +1,36 @@
-FFAM Work Distribution API Service 
+FFAM Work Distribution API Service
 
-- Pre-requisites : 
-  - Make sure that the database is up and running. 
-  - If not : docker run -d -p 1521:1521 mydb:latest
+About :
+
+- This is a Java Springboot Application exposes Rest APIs to create and complete tasks among a given set of agents.
+- Requires Java 8 or greater
+
+Monitoring :
+
+- Checking if the Service is UP and Running :
+  - http://localhost:8081/actuator/health should return {"status":"UP"}
+
+Running the Service using Gradle :
+
+- Running the Application as a Spring Boot App from Gradle :
+  - Make sure no other services are running on port 8081 and port 1521
+  - Change the port to a FREE_PORT in the DB_URL of application.yaml
+  - If 8081 is taken, then change application.yml file to make the App listen on a different port
+  - If 1521 is taken, run the docker run -d -p <FREE_PORT>:1521 mydb:latest listen on a different port
+
+  - Pre-requisites :
+    - Make sure that the database is up and running.
+    - Do a docker ps to see if the container with image mydb is running
+    - If not :
+        - Build the DB Image :
+          - cd into docker/oracle
+          - docker build -t mydb .
+          - docker run -d -p 1521:1521 mydb:latest
+  - Once the DB is up and running, do ./gradlew clean bootRun
+
+- Running Unit Tests : ./gradlew clean test
+
+Running the Service using Docker Compose :
+
+
+

@@ -2,10 +2,10 @@
 
 #set -e
 
-docker_command='docker-compose -f ffam.yml
-                               -f ffam-build.yml
-                               -f ffam-oracle-build.yml
-                               -f oracle.yml'
+docker_command='docker-compose -f ffam.yaml
+                               -f ffam-build.yaml
+                               -f ffam-oracle-build.yaml
+                               -f oracle.yaml'
 
 if [[ $1 == "start" ]]; then
   $docker_command down --remove-orphans

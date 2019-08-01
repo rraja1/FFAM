@@ -50,5 +50,13 @@ Running the Service using Docker Compose :
     - ./environment stop or docker-compose -f ffam.yaml down --remove-orphans
 - Once the start command is Run, wait for the service to completely come up by using the Monitoring Instructions above
 
+Things to potentially add or think about : 
+- Adding caching like spring cache to some of the frequently hit queries especially in Agent Repository
+- Moving Task Allocation Detail into a Distributed Cache than the database 
+- Think about enabling https and adding a cert and depends on the client probably Basic Auth or Mutual Auth 
+- Adding Interceptor Configuration to log Client Request and Client Responses 
+- Adding DB Logger to log queries 
+- Creating a separate schema for application than using the default schema as the tables grow 
+
 
 

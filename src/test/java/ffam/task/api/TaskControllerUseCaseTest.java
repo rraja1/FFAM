@@ -2,7 +2,6 @@ package ffam.task.api;
 
 import ffam.agent.data.Agent;
 import ffam.agent.data.AgentRepository;
-import ffam.task.data.TaskAllocationDetailRepository;
 import ffam.task.data.TaskRepository;
 import ffam.task.domain.*;
 import lombok.val;
@@ -45,13 +44,13 @@ public class TaskControllerUseCaseTest {
 
     //region createTask
     @Test
-    public void test_createTask_returnsUnProcessableEntity_whenNoEligibleAgents(){
+    public void test_createTask_returnsUnProcessableEntity_whenNoEligibleAgents() {
         val taskRequest = new TaskRequest(TaskPriority.HIGH, false, false, false);
         when(agentRepository.findBySkillSet(false, false, false)).thenReturn(Collections.emptyList());
 
         val taskResponse = subject.createTask(taskRequest);
         assertEquals(422, taskResponse.getStatusCode().value());
-        assertEquals(new TaskRequestBusinessErrorResponse("V004", "No Agents Available with the SkillSet"), (TaskRequestBusinessErrorResponse)taskResponse.getBody());
+        assertEquals(new TaskRequestBusinessErrorResponse("V004", "No Agents Available with the SkillSet"), (TaskRequestBusinessErrorResponse) taskResponse.getBody());
 
         verify(agentRepository, times(1)).findBySkillSet(taskRequest.isSkill1(), taskRequest.isSkill2(), taskRequest.isSkill3());
         verifyNoMoreInteractions(agentRepository);
@@ -62,7 +61,7 @@ public class TaskControllerUseCaseTest {
     }
 
     @Test
-    public void test_createTask_returnsAddTaskUseCaseResponse_whenEligibleAgentsWithNoTaskList(){
+    public void test_createTask_returnsAddTaskUseCaseResponse_whenEligibleAgentsWithNoTaskList() {
         val taskRequest = new TaskRequest(TaskPriority.HIGH, true, false, false);
         val agent = new Agent("agentId", "agentName", true, false, false);
 
@@ -86,7 +85,7 @@ public class TaskControllerUseCaseTest {
     }
 
     @Test
-    public void test_createTask_returnsUnProcessableEntity_whenEligibleAgentsHasTaskListButRequestIsLowPriority(){
+    public void test_createTask_returnsUnProcessableEntity_whenEligibleAgentsHasTaskListButRequestIsLowPriority() {
         val taskRequest = new TaskRequest(TaskPriority.LOW, true, false, false);
         val agent = new Agent("agentId", "agentName", true, false, false);
         val existingTask = new Task("taskId", TaskPriority.LOW, true, false, false, TaskStatus.IN_PROGRESS, "agentId");
@@ -96,7 +95,7 @@ public class TaskControllerUseCaseTest {
 
         val taskResponse = subject.createTask(taskRequest);
         assertEquals(422, taskResponse.getStatusCode().value());
-        assertEquals(new TaskRequestBusinessErrorResponse("V006", "All Agents are busy at this time"), (TaskRequestBusinessErrorResponse)taskResponse.getBody());
+        assertEquals(new TaskRequestBusinessErrorResponse("V006", "All Agents are busy at this time"), (TaskRequestBusinessErrorResponse) taskResponse.getBody());
 
         verify(agentRepository, times(1)).findBySkillSet(taskRequest.isSkill1(), taskRequest.isSkill2(), taskRequest.isSkill3());
         verifyNoMoreInteractions(agentRepository);
@@ -109,7 +108,7 @@ public class TaskControllerUseCaseTest {
     }
 
     @Test
-    public void test_createTask_returnsAddTaskWhenAgentBusyUseCase_whenEligibleAgentsHasTaskListAndRequestIsHighPriority(){
+    public void test_createTask_returnsAddTaskWhenAgentBusyUseCase_whenEligibleAgentsHasTaskListAndRequestIsHighPriority() {
         val taskRequest = new TaskRequest(TaskPriority.HIGH, true, false, false);
         val agent = new Agent("agentId", "agentName", true, false, false);
         val existingTask = new Task("taskId", TaskPriority.LOW, true, false, false, TaskStatus.IN_PROGRESS, "agentId");
@@ -136,11 +135,11 @@ public class TaskControllerUseCaseTest {
 
     //region finishTask
     @Test
-    public void test_finishTask_returnsUnProcessableEntity_whenTaskNotPresent(){
+    public void test_finishTask_returnsUnProcessableEntity_whenTaskNotPresent() {
         when(taskRepository.findByTaskId("taskId")).thenReturn(Optional.empty());
         val taskResponse = subject.finishTask("taskId");
         assertEquals(422, taskResponse.getStatusCode().value());
-        assertEquals(new TaskRequestBusinessErrorResponse("V102", "No such task present"), (TaskRequestBusinessErrorResponse)taskResponse.getBody());
+        assertEquals(new TaskRequestBusinessErrorResponse("V102", "No such task present"), (TaskRequestBusinessErrorResponse) taskResponse.getBody());
 
         verify(taskRepository, times(1)).findByTaskId("taskId");
         verifyNoMoreInteractions(taskRepository);
@@ -151,18 +150,18 @@ public class TaskControllerUseCaseTest {
     }
 
     @Test
-    public void test_finishTask_returnsUnProcessableEntity_whenTaskAllocationDetailDeleteFails(){
+    public void test_finishTask_returnsUnProcessableEntity_whenTaskAllocationDetailDeleteFails() {
         val task = new Task("taskId", TaskPriority.HIGH, true, false, false, TaskStatus.IN_PROGRESS, "agentId");
         when(taskRepository.findByTaskId("taskId")).thenReturn(Optional.of(task));
-        when(taskAllocationDetailUseCase.deleteTask(task.getAgentId(),"taskId", task.getTaskPriority())).thenReturn(false);
+        when(taskAllocationDetailUseCase.deleteTask(task.getAgentId(), "taskId", task.getTaskPriority())).thenReturn(false);
 
         val taskResponse = subject.finishTask("taskId");
         assertEquals(422, taskResponse.getStatusCode().value());
-        assertEquals(new TaskRequestBusinessErrorResponse("V101", "Unable to delete the task at this time"), (TaskRequestBusinessErrorResponse)taskResponse.getBody());
+        assertEquals(new TaskRequestBusinessErrorResponse("V101", "Unable to delete the task at this time"), (TaskRequestBusinessErrorResponse) taskResponse.getBody());
 
         verify(taskRepository, times(1)).findByTaskId("taskId");
         verifyNoMoreInteractions(taskRepository);
-        verify(taskAllocationDetailUseCase, times(1)).deleteTask(task.getAgentId(),"taskId", task.getTaskPriority());
+        verify(taskAllocationDetailUseCase, times(1)).deleteTask(task.getAgentId(), "taskId", task.getTaskPriority());
         verifyNoMoreInteractions(taskAllocationDetailUseCase);
 
         verifyZeroInteractions(agentRepository);
@@ -171,20 +170,20 @@ public class TaskControllerUseCaseTest {
     }
 
     @Test
-    public void test_finishTask_returnsUnProcessableEntity_whenTaskUpdateFails(){
+    public void test_finishTask_returnsUnProcessableEntity_whenTaskUpdateFails() {
         val task = new Task("taskId", TaskPriority.HIGH, true, false, false, TaskStatus.IN_PROGRESS, "agentId");
         when(taskRepository.findByTaskId("taskId")).thenReturn(Optional.of(task));
-        when(taskAllocationDetailUseCase.deleteTask(task.getAgentId(),"taskId", task.getTaskPriority())).thenReturn(true);
+        when(taskAllocationDetailUseCase.deleteTask(task.getAgentId(), "taskId", task.getTaskPriority())).thenReturn(true);
         when(taskRepository.updateTaskStatus("taskId", TaskStatus.COMPLETE)).thenReturn(false);
 
         val taskResponse = subject.finishTask("taskId");
         assertEquals(422, taskResponse.getStatusCode().value());
-        assertEquals(new TaskRequestBusinessErrorResponse("V101", "Unable to delete the task at this time"), (TaskRequestBusinessErrorResponse)taskResponse.getBody());
+        assertEquals(new TaskRequestBusinessErrorResponse("V101", "Unable to delete the task at this time"), (TaskRequestBusinessErrorResponse) taskResponse.getBody());
 
         verify(taskRepository, times(1)).findByTaskId("taskId");
         verify(taskRepository, times(1)).updateTaskStatus("taskId", TaskStatus.COMPLETE);
         verifyNoMoreInteractions(taskRepository);
-        verify(taskAllocationDetailUseCase, times(1)).deleteTask(task.getAgentId(),"taskId", task.getTaskPriority());
+        verify(taskAllocationDetailUseCase, times(1)).deleteTask(task.getAgentId(), "taskId", task.getTaskPriority());
         verifyNoMoreInteractions(taskAllocationDetailUseCase);
 
         verifyZeroInteractions(agentRepository);
@@ -193,10 +192,10 @@ public class TaskControllerUseCaseTest {
     }
 
     @Test
-    public void test_finishTask_returnsOk_whenTaskUpdateSuccessAndTaskAllocationDetailSuccess(){
+    public void test_finishTask_returnsOk_whenTaskUpdateSuccessAndTaskAllocationDetailSuccess() {
         val task = new Task("taskId", TaskPriority.HIGH, true, false, false, TaskStatus.IN_PROGRESS, "agentId");
         when(taskRepository.findByTaskId("taskId")).thenReturn(Optional.of(task));
-        when(taskAllocationDetailUseCase.deleteTask(task.getAgentId(),"taskId", task.getTaskPriority())).thenReturn(true);
+        when(taskAllocationDetailUseCase.deleteTask(task.getAgentId(), "taskId", task.getTaskPriority())).thenReturn(true);
         when(taskRepository.updateTaskStatus("taskId", TaskStatus.COMPLETE)).thenReturn(true);
 
         val taskResponse = subject.finishTask("taskId");
@@ -206,7 +205,7 @@ public class TaskControllerUseCaseTest {
         verify(taskRepository, times(1)).findByTaskId("taskId");
         verify(taskRepository, times(1)).updateTaskStatus("taskId", TaskStatus.COMPLETE);
         verifyNoMoreInteractions(taskRepository);
-        verify(taskAllocationDetailUseCase, times(1)).deleteTask(task.getAgentId(),"taskId", task.getTaskPriority());
+        verify(taskAllocationDetailUseCase, times(1)).deleteTask(task.getAgentId(), "taskId", task.getTaskPriority());
         verifyNoMoreInteractions(taskAllocationDetailUseCase);
 
         verifyZeroInteractions(agentRepository);

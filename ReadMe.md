@@ -3,7 +3,7 @@ FFAM Work Distribution API Service
 About :
 
 - This is a Java Springboot Application exposes Rest APIs to create and complete tasks among a given set of agents.
-- Requires Java 8 or greater
+- Requires Java 8 or greater or Docker (See section to run using docker-compose)
 
 Monitoring :
 
@@ -28,7 +28,12 @@ Running the Service using Gradle :
           - docker run -d -p 1521:1521 mydb:latest
   - Once the DB is up and running, do ./gradlew clean bootRun
 
-- Running Unit Tests : ./gradlew clean test
+- Running Unit Tests : ./gradlew clean unitTests
+
+- Running All Tests : 
+  - All tests include also running integration tests with the database. 
+  - Note that since at this point, we use a singular schema, this tests will clean up the DB once done
+  - To run all tests : ./gradlew clean test 
 
 Running the Service using Docker Compose :
 - This app can also be run using Docker Compose.

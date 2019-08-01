@@ -54,13 +54,16 @@ public class TaskControllerUseCase {
                 // Agent is eligible to pick up the job
                 // Assign Agent to the Job
                 return addTaskUseCase.addTask(agent.getAgentId(), taskRequest);
-            } else if (taskRequest.getTaskPriority() == TaskPriority.LOW) {
-                // Task List is not Empty
-                // If the task is a low priority task and all agents are busy
-                // Send an Error Response that no agent would be able to pick up the Job
-                return ResponseEntity.unprocessableEntity().body(new TaskRequestBusinessErrorResponse("V006", "All Agents are busy at this time"));
             }
         }
+
+        // Done with all the agents - No agent's Task List is not Empty
+        if (taskRequest.getTaskPriority() == TaskPriority.LOW) {
+            // If the task is a low priority task and all agents are busy
+            // Send an Error Response that no agent would be able to pick up the Job
+            return ResponseEntity.unprocessableEntity().body(new TaskRequestBusinessErrorResponse("V006", "All Agents are busy at this time"));
+        }
+
         // All Agents are currently working here
         // Get the task allocation detail list by Date Created DSC
         return addTaskWhenAgentBusyUseCase.addTask(eligibleAgents, taskRequest);

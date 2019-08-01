@@ -31,6 +31,19 @@ Running the Service using Gradle :
 - Running Unit Tests : ./gradlew clean test
 
 Running the Service using Docker Compose :
+- This app can also be run using Docker Compose.
+- There is a wrapper script that is part of /compose folder
+- To run the Application and the Database using compose
+  - cd into the compose folder
+  - To start the Services :
+    - ./environment.sh start
+    - This can also be done using series of compose commands
+      - docker-compose -f ffam.yaml down --remove-orphans
+      - docker-compose -f ffam.yaml build
+      - docker-compose -f ffam.yaml up
+  - To stop the Service :
+    - ./environment stop or docker-compose -f ffam.yaml down --remove-orphans
+- Once the start command is Run, wait for the service to completely come up by using the Monitoring Instructions above
 
 
 

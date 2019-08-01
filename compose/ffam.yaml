@@ -4,5 +4,16 @@ services:
   ffam:
     depends_on:
     - oracle
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    environment:
+      DB_URL: jdbc:oracle:thin:system/oracle@oracle:1521:xe
     ports:
     - "8081:8081"
+  oracle:
+    build:
+      context: ../docker/oracle/
+      dockerfile: Dockerfile
+    ports:
+    - "1521:1521"

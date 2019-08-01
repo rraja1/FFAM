@@ -1,5 +1,6 @@
 package ffam.task.data;
 
+import ffam.general.ZonedDateTimeProvider;
 import ffam.task.domain.TaskAllocationDetail;
 import ffam.task.domain.TaskPriority;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +23,12 @@ import java.util.Optional;
 @Repository
 public class TaskAllocationDetailRepository {
     private final JdbcTemplate jdbcTemplate;
+    private final ZonedDateTimeProvider zonedDateTimeProvider;
 
     @Autowired
-    public TaskAllocationDetailRepository(JdbcTemplate jdbcTemplate) {
+    public TaskAllocationDetailRepository(JdbcTemplate jdbcTemplate, ZonedDateTimeProvider zonedDateTimeProvider) {
         this.jdbcTemplate = jdbcTemplate;
+        this.zonedDateTimeProvider = zonedDateTimeProvider;
     }
 
     public List<TaskAllocationDetail> findAll() {
@@ -74,7 +77,7 @@ public class TaskAllocationDetailRepository {
                             "WHERE AGENT_ID = ? ",
                     new Object[]{String.join(",", taskIdList),
                             taskPriority == TaskPriority.HIGH ? 1 : 0, // If already present and updating, take newer state
-                            Date.from(ZonedDateTime.now().toInstant()),
+                            Date.from(zonedDateTimeProvider.now().toInstant()),
                             agentId}
             );
 
@@ -113,7 +116,7 @@ public class TaskAllocationDetailRepository {
                                 "WHERE AGENT_ID = ? ",
                         new Object[]{String.join(",", taskIdList),
                                 taskAllocationDetail.getTaskPriority() == TaskPriority.HIGH ? 1 : 0, // If already present and updating, take newer state
-                                Date.from(ZonedDateTime.now().toInstant()),
+                                Date.from(zonedDateTimeProvider.now().toInstant()),
                                 agentId}
                 );
                 return count > 0;

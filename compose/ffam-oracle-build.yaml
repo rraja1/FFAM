@@ -1,7 +1,0 @@
-version: '2'
-
-services:
-  oracle:
-    build:
-      context: ../docker/oracle/
-      dockerfile: Dockerfile

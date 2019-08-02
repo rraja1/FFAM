@@ -50,6 +50,11 @@ Running the Service using Docker Compose :
     - ./environment stop or docker-compose -f ffam.yaml down --remove-orphans
 - Once the start command is Run, wait for the service to completely come up by using the Monitoring Instructions above
 
+Using the Application with Swagger : 
+- The application has Swagger configured to provide the documentation of the APIs and to try them out
+- Once, the application is up and running : http://localhost:8081/actuator/health should return {"status":"UP"}
+  Use http://localhost:8081/swagger-ui.html to use Swagger for the Application
+
 Things to potentially add or think about : 
 - Adding caching like spring cache to some of the frequently hit queries especially in Agent Repository
 - Moving Task Allocation Detail into a Distributed Cache than the database 

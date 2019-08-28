@@ -61,4 +61,8 @@ task unitTests(type: Test) {
     exclude 'ffam/features/**'
 }
 
+bootJar {
+    baseName = 'my-project'
+    mainClassName = 'ffam.Application'
+}
 
